@@ -6,19 +6,21 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
+	"strconv"
 
 	"api.com/example/models"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type ClubQuery struct {
+type ClubQueryLimit struct {
 	Collection *mongo.Collection
 }
 
-func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (c *ClubQueryLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	lim := r.PathValue("limit")
+	limit, _ := strconv.Atoi(lim)
 
 	queries := r.URL.Query()
 
@@ -42,25 +44,7 @@ func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		arr = append(arr, r)
 	}
 
-	data, _ := json.Marshal(arr)
+	data, _ := json.Marshal(arr[:limit])
 
 	io.Writer.Write(w, data)
-}
-
-func findQueried(coll *mongo.Collection, queries bson.M) (*mongo.Cursor, error) {
-	res, err := coll.Find(context.Background(), queries)
-	if err != nil {
-		return res, err
-	}
-
-	return res, nil
-}
-
-func handleQueries(queries url.Values) bson.M {
-	m := bson.M{}
-	for key, value := range queries {
-		m[key] = value[0]
-	}
-	fmt.Println(m)
-	return m
 }
