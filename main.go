@@ -6,6 +6,7 @@ import (
 
 	"api.com/example/db"
 	Clubs "api.com/example/routes/clubs"
+	Stadiums "api.com/example/routes/stadiums"
 )
 
 func main() {
@@ -15,6 +16,7 @@ func main() {
 	}
 
 	clubdata := db.GetCollection("clubdata", &client)
+	staddata := db.GetCollection("stadiums", &client)
 
 	// handling /clubs/get
 	c := Clubs.ClubHandler{
@@ -51,6 +53,18 @@ func main() {
 		Collection: clubdata,
 	}
 	go http.Handle("/clubs/get/sortBy/{sortVal}/limit/{limit}", &cls)
+
+	//handling /clubs/get/all
+	stadA := Stadiums.StadiumAll{
+		Collection: staddata,
+	}
+	go http.Handle("/stad/get/all", &stadA)
+
+	//handling /stad/get/all/{limit}
+	stadAL := Stadiums.StadiumAllLimit{
+		Collection: staddata,
+	}
+	go http.Handle("/stad/get/all/{limit}", &stadAL)
 
 	http.ListenAndServe(":8080", nil)
 }

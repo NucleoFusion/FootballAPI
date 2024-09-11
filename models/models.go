@@ -12,3 +12,13 @@ type ClubData struct {
 	AerialsWon   float64 `json:"AerialsWon"`
 	Rating       float64 `json:"Rating"`
 }
+
+type StadiumData struct {
+	Confederation string `json:"Confederation"`
+	Stadium       string `json:"Stadium"`
+	City          string `json:"City"`
+	HomeTeams     string `json:"HomeTeams"`
+	Capacity      int32  `json:"Capacity"`
+	Country       string `json:"Country"`
+	Population    int32  `json:"Population"`
+}
