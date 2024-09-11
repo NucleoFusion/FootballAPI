@@ -22,3 +22,9 @@ type StadiumData struct {
 	Country       string `json:"Country"`
 	Population    int32  `json:"Population"`
 }
+
+type UserData struct {
+	Name  string `json:"name"`
+	Key   string `json:"key"`
+	Email string `json:"Email"`
+}

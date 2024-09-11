@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"api.com/example/db"
+	"api.com/example/routes/auth"
 	Clubs "api.com/example/routes/clubs"
 	Stadiums "api.com/example/routes/stadiums"
 )
@@ -17,6 +18,16 @@ func main() {
 
 	clubdata := db.GetCollection("clubdata", &client)
 	staddata := db.GetCollection("stadiums", &client)
+	userData := db.GetCollection("users", &client)
+
+	//AUTH
+
+	auth := auth.Auth{
+		Collection: userData,
+	}
+	go http.Handle("/register", &auth)
+
+	//CLUBS
 
 	// handling /clubs/get
 	c := Clubs.ClubHandler{
