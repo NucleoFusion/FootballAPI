@@ -3,7 +3,6 @@ package Clubs
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -24,7 +23,7 @@ func (c *ClubAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	res, err := findAll(c.Collection)
 	if err != nil {
-		io.WriteString(w, fmt.Sprintf("&v", err))
+		io.WriteString(w, err.Error())
 	}
 
 	arr := []models.ClubData{}
@@ -34,7 +33,7 @@ func (c *ClubAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		err := res.Decode(&r)
 		if err != nil {
-			io.WriteString(w, fmt.Sprintf("&v", err))
+			io.WriteString(w, err.Error())
 		}
 
 		arr = append(arr, r)

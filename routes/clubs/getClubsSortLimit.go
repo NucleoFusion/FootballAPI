@@ -28,7 +28,7 @@ func (c *ClubLimitSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	res, err := findAll(c.Collection)
 	if err != nil {
-		io.WriteString(w, fmt.Sprintf("&v", err))
+		io.WriteString(w, err.Error())
 	}
 
 	arr := []models.ClubData{}
@@ -38,13 +38,17 @@ func (c *ClubLimitSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		err := res.Decode(&r)
 		if err != nil {
-			io.WriteString(w, fmt.Sprintf("&v", err))
+			io.WriteString(w, err.Error())
 		}
 
 		arr = append(arr, r)
 	}
 
-	arr = sortData(arr, sortBy)
+	arr, err = sortData(arr, sortBy)
+	if err != nil {
+		io.WriteString(w, err.Error())
+	}
+
 	if asc == "false" {
 		for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
 			arr[i], arr[j] = arr[j], arr[i]

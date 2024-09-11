@@ -3,7 +3,6 @@ package Clubs
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -24,11 +23,14 @@ func (c *ClubQueryLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	queries := r.URL.Query()
 
-	mappedQueries := handleQueries(queries)
+	mappedQueries, err := handleQueries(queries)
+	if err != nil {
+		io.WriteString(w, err.Error())
+	}
 
 	res, err := findQueried(c.Collection, mappedQueries)
 	if err != nil {
-		io.WriteString(w, fmt.Sprintf("&v", err))
+		io.WriteString(w, err.Error())
 	}
 
 	arr := []models.ClubData{}
@@ -38,7 +40,7 @@ func (c *ClubQueryLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		err := res.Decode(&r)
 		if err != nil {
-			io.WriteString(w, fmt.Sprintf("&v", err))
+			io.WriteString(w, err.Error())
 		}
 
 		arr = append(arr, r)

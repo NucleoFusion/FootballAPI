@@ -3,7 +3,7 @@ package Clubs
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"net/http"
 	"reflect"
@@ -25,7 +25,7 @@ func (c *ClubAllSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	res, err := findAll(c.Collection)
 	if err != nil {
-		io.WriteString(w, fmt.Sprintf("&v", err))
+		io.WriteString(w, err.Error())
 	}
 
 	arr := []models.ClubData{}
@@ -35,13 +35,17 @@ func (c *ClubAllSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		err := res.Decode(&r)
 		if err != nil {
-			io.WriteString(w, fmt.Sprintf("&v", err))
+			io.WriteString(w, err.Error())
 		}
 
 		arr = append(arr, r)
 	}
 
-	arr = sortData(arr, sortBy)
+	arr, err = sortData(arr, sortBy)
+	if err != nil {
+		io.WriteString(w, err.Error())
+	}
+
 	if asc == "false" {
 		for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
 			arr[i], arr[j] = arr[j], arr[i]
@@ -52,8 +56,11 @@ func (c *ClubAllSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	io.Writer.Write(w, data)
 }
 
-func sortData(arr []models.ClubData, sortBy string) []models.ClubData {
+func sortData(arr []models.ClubData, sortBy string) ([]models.ClubData, error) {
 	sortKey := statics.SortVals[sortBy]
+	if sortKey == "" {
+		return nil, errors.New("invalid sortby value")
+	}
 	// fmt.Println(reflect.Indirect(reflect.ValueOf(arr[0])).FieldByName(sortKey))
 	for i := 0; i < len(arr); i++ {
 		for j := 0; j < len(arr)-i-1; j++ {
@@ -69,5 +76,5 @@ func sortData(arr []models.ClubData, sortBy string) []models.ClubData {
 
 		}
 	}
-	return arr
+	return arr, nil
 }

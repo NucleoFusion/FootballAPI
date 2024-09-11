@@ -3,6 +3,7 @@ package Clubs
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,11 +24,14 @@ func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	queries := r.URL.Query()
 
-	mappedQueries := handleQueries(queries)
+	mappedQueries, err := handleQueries(queries)
+	if err != nil {
+		io.WriteString(w, err.Error())
+	}
 
 	res, err := findQueried(c.Collection, mappedQueries)
 	if err != nil {
-		io.WriteString(w, fmt.Sprintf("&v", err))
+		io.WriteString(w, err.Error())
 	}
 
 	arr := []models.ClubData{}
@@ -37,7 +41,7 @@ func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		err := res.Decode(&r)
 		if err != nil {
-			io.WriteString(w, fmt.Sprintf("&v", err))
+			io.WriteString(w, err.Error())
 		}
 
 		arr = append(arr, r)
@@ -57,12 +61,15 @@ func findQueried(coll *mongo.Collection, queries bson.M) (*mongo.Cursor, error) 
 	return res, nil
 }
 
-func handleQueries(queries url.Values) bson.M {
+func handleQueries(queries url.Values) (bson.M, error) {
 	m := bson.M{}
 	var newValue string
 	for key, value := range queries {
 		if key == "Tournament" {
 			newValue = statics.ClubTournaments[value[0]]
+			if newValue == "" {
+				return nil, errors.New("invalid Query Params")
+			}
 		} else if key == "Team" {
 			fmt.Println(key)
 			newValue = statics.ClubNames[value[0]]
@@ -71,5 +78,5 @@ func handleQueries(queries url.Values) bson.M {
 		m[key] = newValue
 	}
 	fmt.Println(m)
-	return m
+	return m, nil
 }
