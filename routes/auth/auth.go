@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"math/rand"
 	"net/http"
@@ -46,6 +47,7 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func extractData(queries url.Values) (string, string) {
+	fmt.Println(queries["email"])
 	return queries["email"][0], queries["name"][0]
 }
 
@@ -83,4 +85,16 @@ func insertIntoUsers(coll *mongo.Collection, user *models.UserData) error {
 	}
 
 	return nil
+}
+
+func AuthenticateKey(key string, coll *mongo.Collection) (bool, error) {
+	userFound := models.UserData{}
+	ExistsErr := coll.FindOne(context.Background(), bson.M{
+		"key": key,
+	}).Decode(&userFound)
+	if ExistsErr != nil {
+		return false, errors.New("User Not Found, Invalid Key")
+	}
+
+	return true, nil
 }

@@ -10,6 +10,7 @@ import (
 	"net/url"
 
 	"api.com/example/models"
+	"api.com/example/routes/auth"
 	"api.com/example/statics"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,10 +18,19 @@ import (
 
 type ClubQuery struct {
 	Collection *mongo.Collection
+	UserData   *mongo.Collection
 }
 
 func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	key := r.URL.Query().Get("key")
+	_, err := auth.AuthenticateKey(key, c.UserData)
+	if err != nil {
+		io.WriteString(w, err.Error())
+		return
+	}
+	r.URL.Query().Del("key")
 
 	queries := r.URL.Query()
 
