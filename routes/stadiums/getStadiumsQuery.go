@@ -1,9 +1,8 @@
-package Clubs
+package Stadiums
 
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,17 +10,16 @@ import (
 
 	"api.com/example/models"
 	"api.com/example/routes/auth"
-	"api.com/example/statics"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type ClubQuery struct {
+type StadiumQuery struct {
 	Collection *mongo.Collection
 	UserData   *mongo.Collection
 }
 
-func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (c *StadiumQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	key := r.URL.Query().Get("key")
@@ -30,7 +28,6 @@ func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 		return
 	}
-	r.URL.Query().Del("key")
 
 	queries := r.URL.Query()
 
@@ -44,10 +41,10 @@ func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 	}
 
-	arr := []models.ClubData{}
+	arr := []models.StadiumData{}
 
 	for res.Next(context.Background()) {
-		r := models.ClubData{}
+		r := models.StadiumData{}
 
 		err := res.Decode(&r)
 		if err != nil {
@@ -62,31 +59,24 @@ func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	io.Writer.Write(w, data)
 }
 
-func findQueried(coll *mongo.Collection, queries bson.M) (*mongo.Cursor, error) {
-	res, err := coll.Find(context.Background(), queries)
+func handleQueries(queries url.Values) (bson.M, error) {
+	m := bson.M{}
+	for key, value := range queries {
+		if key == "Conf" {
+			m["Confederation"] = value[0]
+		} else if key == "Country" {
+			m["IOC"] = value[0]
+		}
+	}
+	fmt.Println(m)
+	return m, nil
+}
+
+func findQueried(coll *mongo.Collection, m bson.M) (*mongo.Cursor, error) {
+	res, err := coll.Find(context.Background(), m)
 	if err != nil {
 		return res, err
 	}
 
 	return res, nil
-}
-
-func handleQueries(queries url.Values) (bson.M, error) {
-	m := bson.M{}
-	var newValue string
-	for key, value := range queries {
-		if key == "Tournament" {
-			newValue = statics.ClubTournaments[value[0]]
-			if newValue == "" {
-				return nil, errors.New("invalid Query Params")
-			}
-		} else if key == "Team" {
-			newValue = statics.ClubNames[value[0]]
-		} else if key == "key" {
-			continue
-		}
-		m[key] = newValue
-	}
-	fmt.Println(m)
-	return m, nil
 }

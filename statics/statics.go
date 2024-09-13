@@ -115,6 +115,11 @@ var SortVals = map[string]string{
 	"Rat":   "Rating",
 }
 
+var SortValsStad = map[string]string{
+	"Cap": "Capacity",
+	"Pop": "Population",
+}
+
 var StadCountry = map[string]string{
 	"Germany":                  "GER",
 	"Norway":                   "NOR",

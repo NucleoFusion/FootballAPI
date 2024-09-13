@@ -21,5 +21,5 @@ func ConnectToDB() (mongo.Client, error) {
 }
 
 func GetCollection(name string, client *mongo.Client) *mongo.Collection {
-	return client.Database("premleague").Collection(name)
+	return client.Database("footballapi").Collection(name)
 }

@@ -85,5 +85,33 @@ func main() {
 	}
 	go http.Handle("/stad/get/all/{limit}", &stadAL)
 
+	//handling /stad/get/query
+	stadQ := Stadiums.StadiumQuery{
+		Collection: staddata,
+		UserData:   userData,
+	}
+	go http.Handle("/stad/get/query", &stadQ)
+
+	//handling /stad/get/query/{limit}
+	stadQL := Stadiums.StadiumQueryLimit{
+		Collection: staddata,
+		UserData:   userData,
+	}
+	go http.Handle("/stad/get/query/{limit}", &stadQL)
+
+	//handling /stad/get/sortBy/{sortVal}
+	stadS := Stadiums.StadiumAllSort{
+		Collection: staddata,
+		UserData:   userData,
+	}
+	go http.Handle("/stad/get/sortBy/{sortVal}", &stadS)
+
+	//handling /stad/get/sortBy/{sortVal}/{limit}
+	stadSL := Stadiums.StadiumSortLimit{
+		Collection: staddata,
+		UserData:   userData,
+	}
+	go http.Handle("/stad/get/sortBy/{sortVal}/{limit}", &stadSL)
+
 	http.ListenAndServe(":8080", nil)
 }
