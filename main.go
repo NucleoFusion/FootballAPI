@@ -7,6 +7,7 @@ import (
 	"api.com/example/db"
 	"api.com/example/routes/auth"
 	Clubs "api.com/example/routes/clubs"
+	"api.com/example/routes/players"
 	Stadiums "api.com/example/routes/stadiums"
 )
 
@@ -19,6 +20,7 @@ func main() {
 	clubdata := db.GetCollection("clubdata", &client)
 	staddata := db.GetCollection("stadiums", &client)
 	userData := db.GetCollection("users", &client)
+	playerData := db.GetCollection("playerdata", &client)
 
 	//AUTH
 
@@ -112,6 +114,22 @@ func main() {
 		UserData:   userData,
 	}
 	go http.Handle("/stad/get/sortBy/{sortVal}/{limit}", &stadSL)
+
+	//PlayerData
+
+	//handling /player/get/all
+	PlayA := players.PlayersAll{
+		Collection: playerData,
+		UserData:   userData,
+	}
+	go http.Handle("/player/get/all", &PlayA)
+
+	//handling /player/get/all/{limit}
+	PlayAL := players.PlayersAllLimit{
+		Collection: playerData,
+		UserData:   userData,
+	}
+	go http.Handle("/player/get/all/{limit}", &PlayAL)
 
 	http.ListenAndServe(":8080", nil)
 }
