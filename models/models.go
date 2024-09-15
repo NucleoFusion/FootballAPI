@@ -33,6 +33,7 @@ type PlayerData struct {
 	Rk              int32   `json:"Rk"`
 	Player          string  `json:"Player"`
 	Nation          string  `json:"Nation"`
+	Squad           string  `json:"Squad"`
 	Pos             string  `json:"Pos"`
 	Age             int32   `json:"Age"`
 	Comp            string  `json:"Comp"`

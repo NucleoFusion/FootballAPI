@@ -10,6 +10,7 @@ import (
 	"api.com/example/models"
 	"api.com/example/routes/auth"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type PlayersAllLimit struct {
@@ -23,6 +24,8 @@ func (c *PlayersAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lim := r.PathValue("limit")
 	limit, _ := strconv.Atoi(lim)
 
+	opts := options.Find().SetLimit(int64(limit))
+
 	key := r.URL.Query().Get("key")
 	_, err := auth.AuthenticateKey(key, c.UserData)
 	if err != nil {
@@ -30,7 +33,7 @@ func (c *PlayersAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := findAll(c.Collection)
+	res, err := findAll(c.Collection, opts)
 	if err != nil {
 		io.WriteString(w, err.Error())
 		return

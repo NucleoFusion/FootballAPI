@@ -10,6 +10,7 @@ import (
 	"api.com/example/models"
 	"api.com/example/routes/auth"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ClubLimitSort struct {
@@ -19,6 +20,8 @@ type ClubLimitSort struct {
 
 func (c *ClubLimitSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	opts := options.Find()
 
 	key := r.URL.Query().Get("key")
 	_, err := auth.AuthenticateKey(key, c.UserData)
@@ -34,7 +37,7 @@ func (c *ClubLimitSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sortBy := r.PathValue("sortVal")
 	asc := r.URL.Query().Get("asc")
 
-	res, err := findAll(c.Collection)
+	res, err := findAll(c.Collection, opts)
 	if err != nil {
 		io.WriteString(w, err.Error())
 	}

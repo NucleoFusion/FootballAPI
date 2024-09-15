@@ -10,6 +10,7 @@ import (
 	"api.com/example/models"
 	"api.com/example/routes/auth"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type StadiumSortLimit struct {
@@ -23,6 +24,8 @@ func (c *StadiumSortLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lim := r.PathValue("limit")
 	limit, _ := strconv.Atoi(lim)
 
+	opts := options.Find()
+
 	key := r.URL.Query().Get("key")
 	_, err := auth.AuthenticateKey(key, c.UserData)
 	if err != nil {
@@ -34,7 +37,7 @@ func (c *StadiumSortLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sortBy := r.PathValue("sortVal")
 	asc := r.URL.Query().Get("asc")
 
-	res, err := findAll(c.Collection)
+	res, err := findAll(c.Collection, opts)
 	if err != nil {
 		io.WriteString(w, err.Error())
 	}

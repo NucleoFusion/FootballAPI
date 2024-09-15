@@ -10,6 +10,7 @@ import (
 	"api.com/example/models"
 	"api.com/example/routes/auth"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type StadiumAllLimit struct {
@@ -19,6 +20,8 @@ type StadiumAllLimit struct {
 
 func (c *StadiumAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	opts := options.Find()
 
 	key := r.URL.Query().Get("key")
 	_, err := auth.AuthenticateKey(key, c.UserData)
@@ -31,7 +34,7 @@ func (c *StadiumAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lim := r.PathValue("limit")
 	limit, _ := strconv.Atoi(lim)
 
-	res, err := findAll(c.Collection)
+	res, err := findAll(c.Collection, opts)
 	if err != nil {
 		io.WriteString(w, err.Error())
 	}

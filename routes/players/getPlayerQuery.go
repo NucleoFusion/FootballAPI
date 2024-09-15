@@ -1,4 +1,4 @@
-package Clubs
+package players
 
 import (
 	"context"
@@ -17,12 +17,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type ClubQuery struct {
+type PlayersQuery struct {
 	Collection *mongo.Collection
 	UserData   *mongo.Collection
 }
 
-func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (c *PlayersQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	key := r.URL.Query().Get("key")
@@ -31,7 +31,8 @@ func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 		return
 	}
-	r.URL.Query().Del("key")
+
+	opts := options.Find()
 
 	queries := r.URL.Query()
 
@@ -40,17 +41,16 @@ func (c *ClubQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 	}
 
-	opts := options.Find()
-
 	res, err := findQueried(c.Collection, mappedQueries, opts)
 	if err != nil {
 		io.WriteString(w, err.Error())
+		return
 	}
 
-	arr := []models.ClubData{}
+	arr := []models.PlayerData{}
 
 	for res.Next(context.Background()) {
-		r := models.ClubData{}
+		r := models.PlayerData{}
 
 		err := res.Decode(&r)
 		if err != nil {
@@ -78,15 +78,19 @@ func handleQueries(queries url.Values) (bson.M, error) {
 	m := bson.M{}
 	var newValue string
 	for key, value := range queries {
-		if key == "Tournament" {
-			newValue = statics.ClubTournaments[value[0]]
+		if key == "Squad" {
+			newValue = statics.SquadPlayer[value[0]]
 			if newValue == "" {
 				return nil, errors.New("invalid Query Params")
 			}
-		} else if key == "Team" {
-			newValue = statics.ClubNames[value[0]]
 		} else if key == "key" {
 			continue
+		} else if key == "Nation" {
+			newValue = statics.NationPlayer[value[0]]
+		} else if key == "Squad" {
+			newValue = value[0]
+		} else if key == "Comp" {
+			newValue = statics.LeaguePlayer[value[0]]
 		}
 		m[key] = newValue
 	}

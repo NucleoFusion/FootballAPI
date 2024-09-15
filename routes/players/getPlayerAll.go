@@ -10,6 +10,7 @@ import (
 	"api.com/example/routes/auth"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type PlayersAll struct {
@@ -20,6 +21,8 @@ type PlayersAll struct {
 func (c *PlayersAll) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	opts := options.Find()
+
 	key := r.URL.Query().Get("key")
 	_, err := auth.AuthenticateKey(key, c.UserData)
 	if err != nil {
@@ -27,7 +30,7 @@ func (c *PlayersAll) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := findAll(c.Collection)
+	res, err := findAll(c.Collection, opts)
 	if err != nil {
 		io.WriteString(w, err.Error())
 		return
@@ -51,7 +54,7 @@ func (c *PlayersAll) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	io.Writer.Write(w, data)
 }
 
-func findAll(coll *mongo.Collection) (*mongo.Cursor, error) {
+func findAll(coll *mongo.Collection, opts *options.FindOptions) (*mongo.Cursor, error) {
 	res, err := coll.Find(context.Background(), bson.D{})
 	if err != nil {
 		return res, err

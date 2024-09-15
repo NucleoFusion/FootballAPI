@@ -1,4 +1,4 @@
-package Clubs
+package players
 
 import (
 	"context"
@@ -13,13 +13,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type ClubAllLimit struct {
+type PlayersQueryLimit struct {
 	Collection *mongo.Collection
 	UserData   *mongo.Collection
 }
 
-func (c *ClubAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (c *PlayersQueryLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	lim := r.PathValue("limit")
+	limit, _ := strconv.Atoi(lim)
 
 	key := r.URL.Query().Get("key")
 	_, err := auth.AuthenticateKey(key, c.UserData)
@@ -28,20 +31,25 @@ func (c *ClubAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lim := r.PathValue("limit")
-	limit, _ := strconv.Atoi(lim)
-
 	opts := options.Find().SetLimit(int64(limit))
 
-	res, err := findAll(c.Collection, opts)
+	queries := r.URL.Query()
+
+	mappedQueries, err := handleQueries(queries)
 	if err != nil {
 		io.WriteString(w, err.Error())
 	}
 
-	arr := []models.ClubData{}
+	res, err := findQueried(c.Collection, mappedQueries, opts)
+	if err != nil {
+		io.WriteString(w, err.Error())
+		return
+	}
+
+	arr := []models.PlayerData{}
 
 	for res.Next(context.Background()) {
-		r := models.ClubData{}
+		r := models.PlayerData{}
 
 		err := res.Decode(&r)
 		if err != nil {
@@ -51,7 +59,7 @@ func (c *ClubAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		arr = append(arr, r)
 	}
 
-	data, _ := json.Marshal(arr[:limit])
+	data, _ := json.Marshal(arr)
 
 	io.Writer.Write(w, data)
 }

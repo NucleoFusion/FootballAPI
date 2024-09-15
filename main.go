@@ -131,5 +131,19 @@ func main() {
 	}
 	go http.Handle("/player/get/all/{limit}", &PlayAL)
 
+	//handling /player/get/query
+	PlayQ := players.PlayersQuery{
+		Collection: playerData,
+		UserData:   userData,
+	}
+	go http.Handle("/player/get/query", &PlayQ)
+
+	//handling /player/get/all/{limit}
+	PlayQL := players.PlayersQueryLimit{
+		Collection: playerData,
+		UserData:   userData,
+	}
+	go http.Handle("/player/get/query/{limit}", &PlayQL)
+
 	http.ListenAndServe(":8080", nil)
 }
