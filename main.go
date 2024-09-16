@@ -71,7 +71,7 @@ func main() {
 		Collection: clubdata,
 		UserData:   userData,
 	}
-	go http.Handle("/clubs/get/sortBy/{sortVal}/limit/{limit}", &cls)
+	go http.Handle("/clubs/get/sortBy/{sortVal}/{limit}", &cls)
 
 	//handling /clubs/get/all
 	stadA := Stadiums.StadiumAll{
@@ -138,12 +138,26 @@ func main() {
 	}
 	go http.Handle("/player/get/query", &PlayQ)
 
-	//handling /player/get/all/{limit}
+	//handling /player/get/query/{limit}
 	PlayQL := players.PlayersQueryLimit{
 		Collection: playerData,
 		UserData:   userData,
 	}
 	go http.Handle("/player/get/query/{limit}", &PlayQL)
+
+	//handling /player/get/sortBy/{sortVal}
+	PlayS := players.PlayerSort{
+		Collection: playerData,
+		UserData:   userData,
+	}
+	go http.Handle("/player/get/sortBy/{sortVal}", &PlayS)
+
+	//handling /player/get/sortBy/{sortVal}/{limit}
+	PlaySL := players.PlayerSortLimit{
+		Collection: playerData,
+		UserData:   userData,
+	}
+	go http.Handle("/player/get/sortBy/{sortVal}/{limit}", &PlaySL)
 
 	http.ListenAndServe(":8080", nil)
 }

@@ -87,8 +87,6 @@ func handleQueries(queries url.Values) (bson.M, error) {
 			continue
 		} else if key == "Nation" {
 			newValue = statics.NationPlayer[value[0]]
-		} else if key == "Squad" {
-			newValue = value[0]
 		} else if key == "Comp" {
 			newValue = statics.LeaguePlayer[value[0]]
 		}
