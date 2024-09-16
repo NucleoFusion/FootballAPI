@@ -3,15 +3,11 @@ package Stadiums
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io"
 	"net/http"
-	"reflect"
 
 	"api.com/example/models"
 	"api.com/example/routes/auth"
-	"api.com/example/statics"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -64,34 +60,7 @@ func (c *StadiumAllSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		arr = append(arr, r)
 	}
 
-	arr, err = sortData(arr, sortBy)
-	if err != nil {
-		io.WriteString(w, err.Error())
-	}
-
-	if asc == "false" {
-		for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
-			arr[i], arr[j] = arr[j], arr[i]
-		}
-	}
 	data, _ := json.Marshal(arr)
 
 	io.Writer.Write(w, data)
-}
-
-func sortData(arr []models.StadiumData, sortBy string) ([]models.StadiumData, error) {
-	sortKey := statics.SortValsStad[sortBy]
-	fmt.Println(sortKey)
-	if sortKey == "" {
-		return nil, errors.New("invalid sortby value")
-	}
-	// fmt.Println(reflect.Indirect(reflect.ValueOf(arr[0])).FieldByName(sortKey))
-	for i := 0; i < len(arr); i++ {
-		for j := 0; j < len(arr)-i-1; j++ {
-			if reflect.Indirect(reflect.ValueOf(arr[j])).FieldByName(sortKey).Interface().(int32) > reflect.Indirect(reflect.ValueOf(arr[j+1])).FieldByName(sortKey).Interface().(int32) {
-				arr[j], arr[j+1] = arr[j+1], arr[j]
-			}
-		}
-	}
-	return arr, nil
 }

@@ -3,14 +3,11 @@ package Clubs
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
-	"reflect"
 
 	"api.com/example/models"
 	"api.com/example/routes/auth"
-	"api.com/example/statics"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -30,7 +27,6 @@ func (c *ClubAllSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 		return
 	}
-	r.URL.Query().Del("key")
 
 	sortBy := r.PathValue("sortVal")
 	asc := r.URL.Query().Get("asc")
@@ -77,27 +73,4 @@ func (c *ClubAllSort) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	data, _ := json.Marshal(arr)
 
 	io.Writer.Write(w, data)
-}
-
-func sortData(arr []models.ClubData, sortBy string) ([]models.ClubData, error) {
-	sortKey := statics.SortVals[sortBy]
-	if sortKey == "" {
-		return nil, errors.New("invalid sortby value")
-	}
-	// fmt.Println(reflect.Indirect(reflect.ValueOf(arr[0])).FieldByName(sortKey))
-	for i := 0; i < len(arr); i++ {
-		for j := 0; j < len(arr)-i-1; j++ {
-			if sortKey == "Goals" {
-				if reflect.Indirect(reflect.ValueOf(arr[j])).FieldByName(sortKey).Interface().(int32) > reflect.Indirect(reflect.ValueOf(arr[j+1])).FieldByName(sortKey).Interface().(int32) {
-					arr[j], arr[j+1] = arr[j+1], arr[j]
-				}
-			} else {
-				if reflect.Indirect(reflect.ValueOf(arr[j])).FieldByName(sortKey).Interface().(float64) > reflect.Indirect(reflect.ValueOf(arr[j+1])).FieldByName(sortKey).Interface().(float64) {
-					arr[j], arr[j+1] = arr[j+1], arr[j]
-				}
-			}
-
-		}
-	}
-	return arr, nil
 }

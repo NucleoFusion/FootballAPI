@@ -64,16 +64,6 @@ func (c *StadiumSortLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		arr = append(arr, r)
 	}
 
-	arr, err = sortData(arr, sortBy)
-	if err != nil {
-		io.WriteString(w, err.Error())
-	}
-
-	if asc == "false" {
-		for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
-			arr[i], arr[j] = arr[j], arr[i]
-		}
-	}
 	data, _ := json.Marshal(arr[:limit])
 
 	io.Writer.Write(w, data)
