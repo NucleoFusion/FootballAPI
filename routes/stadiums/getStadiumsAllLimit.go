@@ -21,18 +21,17 @@ type StadiumAllLimit struct {
 func (c *StadiumAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	opts := options.Find()
-
 	key := r.URL.Query().Get("key")
 	_, err := auth.AuthenticateKey(key, c.UserData)
 	if err != nil {
 		io.WriteString(w, err.Error())
 		return
 	}
-	r.URL.Query().Del("key")
 
 	lim := r.PathValue("limit")
 	limit, _ := strconv.Atoi(lim)
+
+	opts := options.Find().SetLimit(int64(limit))
 
 	res, err := findAll(c.Collection, opts)
 	if err != nil {
@@ -52,7 +51,7 @@ func (c *StadiumAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		arr = append(arr, r)
 	}
 
-	data, _ := json.Marshal(arr[:limit])
+	data, _ := json.Marshal(arr)
 
 	io.Writer.Write(w, data)
 }

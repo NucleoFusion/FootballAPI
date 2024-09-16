@@ -29,7 +29,6 @@ func (c *StadiumAll) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 		return
 	}
-	r.URL.Query().Del("key")
 
 	res, err := findAll(c.Collection, opts)
 	if err != nil {

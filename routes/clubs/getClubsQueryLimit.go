@@ -32,7 +32,6 @@ func (c *ClubQueryLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 		return
 	}
-	r.URL.Query().Del("key")
 
 	queries := r.URL.Query()
 
@@ -59,7 +58,7 @@ func (c *ClubQueryLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		arr = append(arr, r)
 	}
 
-	data, _ := json.Marshal(arr[:limit])
+	data, _ := json.Marshal(arr)
 
 	io.Writer.Write(w, data)
 }

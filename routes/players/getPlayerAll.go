@@ -55,7 +55,7 @@ func (c *PlayersAll) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func findAll(coll *mongo.Collection, opts *options.FindOptions) (*mongo.Cursor, error) {
-	res, err := coll.Find(context.Background(), bson.D{})
+	res, err := coll.Find(context.Background(), bson.D{}, opts)
 	if err != nil {
 		return res, err
 	}

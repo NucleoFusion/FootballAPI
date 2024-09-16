@@ -52,7 +52,7 @@ func (c *PlayersAllLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		arr = append(arr, r)
 	}
 
-	data, _ := json.Marshal(arr[:limit])
+	data, _ := json.Marshal(arr)
 
 	io.Writer.Write(w, data)
 }

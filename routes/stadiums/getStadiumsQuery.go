@@ -12,6 +12,7 @@ import (
 	"api.com/example/routes/auth"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type StadiumQuery struct {
@@ -36,7 +37,9 @@ func (c *StadiumQuery) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 	}
 
-	res, err := findQueried(c.Collection, mappedQueries)
+	opts := options.Find()
+
+	res, err := findQueried(c.Collection, mappedQueries, opts)
 	if err != nil {
 		io.WriteString(w, err.Error())
 	}
@@ -72,8 +75,8 @@ func handleQueries(queries url.Values) (bson.M, error) {
 	return m, nil
 }
 
-func findQueried(coll *mongo.Collection, m bson.M) (*mongo.Cursor, error) {
-	res, err := coll.Find(context.Background(), m)
+func findQueried(coll *mongo.Collection, m bson.M, opts *options.FindOptions) (*mongo.Cursor, error) {
+	res, err := coll.Find(context.Background(), m, opts)
 	if err != nil {
 		return res, err
 	}
