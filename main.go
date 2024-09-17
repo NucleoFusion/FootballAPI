@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"api.com/example/db"
 	"api.com/example/routes/auth"
@@ -159,5 +160,5 @@ func main() {
 	}
 	go http.Handle("/player/get/sortBy/{sortVal}/{limit}", &PlaySL)
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
